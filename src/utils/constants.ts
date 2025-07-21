@@ -1,7 +1,5 @@
-// src/utils/constants.ts
 import { MessageSquare } from "lucide-react";
 
-// Define available node types for easy extensibility
 export const NODE_TYPES = {
   textMessage: {
     label: "Message",
@@ -12,5 +10,3 @@ export const NODE_TYPES = {
   },
   // Future node types can be added here
 } as const;
-
-

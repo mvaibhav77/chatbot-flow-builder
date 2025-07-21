@@ -1,5 +1,5 @@
 // src/components/FlowBuilder.tsx
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback } from "react";
 import {
   ReactFlow,
   Controls,
@@ -9,51 +9,63 @@ import {
   addEdge,
   type Connection,
   type Edge,
-  type Node,
+  type Node, // <-- Keep this generic Node type
   type ReactFlowInstance,
-} from '@xyflow/react';
-import { Save } from 'lucide-react';
-import { NodesPanel } from './panels/NodesPanel';
-import { NODE_TYPES, type NodeType } from '../utils/constants';
+} from "@xyflow/react";
+import { Save } from "lucide-react";
+
+import { NodesPanel } from "./panels/NodesPanel";
+import { SettingsPanel } from "./panels/SettingsPanel";
+import { NODE_TYPES } from "../utils/constants";
+import type { NodeType, TextNodeData } from "../utils/types";
+import { TextNode } from "./nodes/TextNode"; // <-- Import TextNodeData
 
 const initialNodes: Node[] = [];
 const initialEdges: Edge[] = [];
+
+// Define the custom node types
+const nodeTypes = {
+  textMessage: TextNode,
+};
 
 export function FlowBuilder() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
+  const [reactFlowInstance, setReactFlowInstance] =
+    useState<ReactFlowInstance | null>(null);
+
+  // **THE FIX**: Specify that the selectedNode state holds a Node with TextNodeData
+  const [selectedNode, setSelectedNode] = useState<Node<TextNodeData> | null>(
+    null
+  );
 
   const onConnect = useCallback(
     (params: Connection | Edge) => setEdges((eds) => addEdge(params, eds)),
-    [setEdges],
+    [setEdges]
   );
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
-    event.dataTransfer.dropEffect = 'move';
+    event.dataTransfer.dropEffect = "move";
   }, []);
 
   const onDrop = useCallback(
     (event: React.DragEvent) => {
       event.preventDefault();
-
-      if (!reactFlowWrapper.current || !reactFlowInstance) {
-        return;
-      }
-
-      const type = event.dataTransfer.getData('application/reactflow') as NodeType;
-      if (!type) {
-        return;
-      }
+      if (!reactFlowWrapper.current || !reactFlowInstance) return;
+      const type = event.dataTransfer.getData(
+        "application/reactflow"
+      ) as NodeType;
+      if (!type) return;
 
       const position = reactFlowInstance.screenToFlowPosition({
         x: event.clientX,
         y: event.clientY,
       });
 
-      const newNode: Node = {
+      // Be specific that this new node contains TextNodeData
+      const newNode: Node<TextNodeData> = {
         id: `${type}-${Date.now()}`,
         type,
         position,
@@ -62,13 +74,41 @@ export function FlowBuilder() {
 
       setNodes((nds) => nds.concat(newNode));
     },
-    [reactFlowInstance, setNodes],
+    [reactFlowInstance, setNodes]
   );
 
   const onDragStart = (event: React.DragEvent, nodeType: NodeType) => {
-    event.dataTransfer.setData('application/reactflow', nodeType);
-    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData("application/reactflow", nodeType);
+    event.dataTransfer.effectAllowed = "move";
   };
+
+  const onNodeClick = useCallback((_: React.MouseEvent, node: Node) => {
+    setSelectedNode(node as Node<TextNodeData>);
+  }, []);
+
+  const onPaneClick = useCallback(() => {
+    setSelectedNode(null);
+  }, []);
+
+  const onNodeUpdate = useCallback(
+    (nodeId: string, data: Partial<TextNodeData>) => {
+      setNodes((nds) =>
+        nds.map((node) =>
+          node.id === nodeId
+            ? { ...node, data: { ...node.data, ...data } }
+            : node
+        )
+      );
+      // Updating the selected node to reflect changes immediately in the panel
+      setSelectedNode((prevNode) => {
+        if (prevNode && prevNode.id === nodeId) {
+          return { ...prevNode, data: { ...prevNode.data, ...data } };
+        }
+        return prevNode;
+      });
+    },
+    [setNodes]
+  );
 
   return (
     <div className="h-screen w-screen flex font-sans text-gray-800">
@@ -79,7 +119,7 @@ export function FlowBuilder() {
             Save Changes
           </button>
         </header>
-        
+
         <main className="flex-grow">
           <ReactFlow
             nodes={nodes}
@@ -90,6 +130,9 @@ export function FlowBuilder() {
             onInit={setReactFlowInstance}
             onDrop={onDrop}
             onDragOver={onDragOver}
+            onNodeClick={onNodeClick}
+            onPaneClick={onPaneClick}
+            nodeTypes={nodeTypes}
             fitView
           >
             <Controls />
@@ -97,8 +140,16 @@ export function FlowBuilder() {
           </ReactFlow>
         </main>
       </div>
-      
-      <NodesPanel onDragStart={onDragStart} />
+
+      {selectedNode ? (
+        <SettingsPanel
+          selectedNode={selectedNode}
+          onNodeUpdate={onNodeUpdate}
+          onClose={onPaneClick}
+        />
+      ) : (
+        <NodesPanel onDragStart={onDragStart} />
+      )}
     </div>
   );
 }
