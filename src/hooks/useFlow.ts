@@ -16,6 +16,9 @@ const initialNodes: Node[] = [];
 const initialEdges: Edge[] = [];
 
 export function useFlow() {
+  // most logic here I have taken from the official reactflow example
+  // and modified it to fit the app need using GPT as a guide
+  // https://reactflow.dev/learn
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -37,6 +40,7 @@ export function useFlow() {
     (event: React.DragEvent) => {
       event.preventDefault();
       if (!reactFlowWrapper.current || !reactFlowInstance) return;
+      // Get the type of node being dragged from the dataTransfer object
       const type = event.dataTransfer.getData(
         "application/reactflow"
       ) as NodeType;

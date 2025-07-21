@@ -1,5 +1,5 @@
-// src/components/panels/SettingsPanel.tsx
-import { ArrowLeft } from "lucide-react";
+import { useState, useEffect } from "react"; // <-- Import hooks
+import { Check, MoveLeft } from "lucide-react";
 import type { Node } from "@xyflow/react";
 import type { TextNodeData } from "../../utils/types";
 
@@ -16,22 +16,31 @@ export function SettingsPanel({
 }: SettingsPanelProps) {
   const { data, id } = selectedNode;
 
-  const handleTextChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    onNodeUpdate(id, { text: event.target.value });
+  // 1. Local state to manage the input value independently.
+  const [localText, setLocalText] = useState(data.text);
+
+  // 2. useEffect to sync local state if the selected node changes.
+  // This ensures that when you click a different node, the panel shows the new node's text.
+  useEffect(() => {
+    setLocalText(data.text);
+  }, [id, data.text]); // Re-run when the node ID or its text changes.
+
+  const handleApplyChanges = () => {
+    onNodeUpdate(id, { text: localText });
   };
 
   return (
-    <aside className="w-80 border-l border-gray-200 bg-white p-4">
-      <div className="flex items-center gap-2 pb-3 border-b-2">
+    <aside className="w-80 border-l border-gray-200 bg-white flex flex-col">
+      <div className="flex items-center gap-2 pb-3 bg-neutral-100 border-b border-gray-200 p-4">
         <button onClick={onClose} className="p-1 hover:bg-gray-200 rounded-md">
-          <ArrowLeft size={16} />
+          <MoveLeft size={16} />
         </button>
         <h2 className="text-md font-semibold text-gray-700 flex-grow text-center">
           Message
         </h2>
       </div>
 
-      <div className="pt-4">
+      <div className="flex-grow p-4">
         <label
           htmlFor="text-input"
           className="text-gray-500 text-sm mb-2 block"
@@ -40,11 +49,21 @@ export function SettingsPanel({
         </label>
         <textarea
           id="text-input"
-          value={data.text}
-          onChange={handleTextChange}
+          value={localText} // 3. The textarea is now controlled by our local state.
+          onChange={(e) => setLocalText(e.target.value)}
           rows={5}
           className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
+      </div>
+
+      <div className="mt-4 p-4">
+        <button
+          onClick={handleApplyChanges} // 4. This button now triggers the update.
+          className="cursor-pointer px-4 py-2 w-full bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+        >
+          <Check size={16} />
+          Apply Changes
+        </button>
       </div>
     </aside>
   );
