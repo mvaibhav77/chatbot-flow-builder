@@ -30,6 +30,7 @@ export function FlowBuilder() {
     onNodeClick,
     onPaneClick,
     onNodeUpdate,
+    onNodeDelete
   } = useFlow();
 
   // The helper function to render panels
@@ -43,6 +44,7 @@ export function FlowBuilder() {
             selectedNode={selectedNode as Node<TextNodeData>}
             onNodeUpdate={onNodeUpdate}
             onClose={onPaneClick}
+            onNodeDelete={onNodeDelete}
           />
         );
       // Add cases for other node types as needed

@@ -85,13 +85,27 @@ export function useFlow() {
             : node
         )
       );
-      setSelectedNode((prevNode) =>
-        prevNode && prevNode.id === nodeId
-          ? { ...prevNode, data: { ...prevNode.data, ...data } }
-          : prevNode
-      );
+      // Optionally, we can also update the selected node if it matches
+      // setSelectedNode((prevNode) =>
+      //   prevNode && prevNode.id === nodeId
+      //     ? { ...prevNode, data: { ...prevNode.data, ...data } }
+      //     : prevNode
+      // );
+      setSelectedNode(null); // Deselect after updating
     },
     [setNodes]
+  );
+  
+  const onNodeDelete = useCallback(
+    (nodeId: string) => {
+      // Manually filter the nodes and edges to remove the deleted one
+      setNodes((nds) => nds.filter((node) => node.id !== nodeId));
+      setEdges((eds) =>
+        eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId)
+      );
+      setSelectedNode(null); // Deselect after deleting
+    },
+    [setNodes, setEdges]
   );
 
   // Return all the state and handlers that the UI component will need
@@ -110,5 +124,6 @@ export function useFlow() {
     onNodeClick,
     onPaneClick,
     onNodeUpdate,
+    onNodeDelete,
   };
 }
