@@ -1,114 +1,56 @@
-// src/components/FlowBuilder.tsx
-import { useState, useRef, useCallback } from "react";
-import {
-  ReactFlow,
-  Controls,
-  Background,
-  useNodesState,
-  useEdgesState,
-  addEdge,
-  type Connection,
-  type Edge,
-  type Node, // <-- Keep this generic Node type
-  type ReactFlowInstance,
-} from "@xyflow/react";
+import { ReactFlow, Controls, Background, type Node } from "@xyflow/react";
 import { Save } from "lucide-react";
 
+import { useFlow } from "../hooks/useFlow"; // <-- Import the custom hook
 import { NodesPanel } from "./panels/NodesPanel";
 import { SettingsPanel } from "./panels/SettingsPanel";
-import { NODE_TYPES } from "../utils/constants";
-import type { NodeType, TextNodeData } from "../utils/types";
-import { TextNode } from "./nodes/TextNode"; // <-- Import TextNodeData
+import { TextNode } from "./nodes/TextNode";
+import type { TextNodeData } from "../utils/types";
 
-const initialNodes: Node[] = [];
-const initialEdges: Edge[] = [];
-
-// Define the custom node types
+// Define the custom node types. This can stay here as it's UI-related.
 const nodeTypes = {
   textMessage: TextNode,
 };
 
 export function FlowBuilder() {
-  const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const [reactFlowInstance, setReactFlowInstance] =
-    useState<ReactFlowInstance | null>(null);
+  // Get all state and handlers from our useFlow hook
+  // This keeps the component clean and focused on rendering.
+  const {
+    reactFlowWrapper,
+    nodes,
+    edges,
+    selectedNode,
+    onNodesChange,
+    onEdgesChange,
+    onConnect,
+    setReactFlowInstance,
+    onDrop,
+    onDragOver,
+    onDragStart,
+    onNodeClick,
+    onPaneClick,
+    onNodeUpdate,
+  } = useFlow();
 
-  // **THE FIX**: Specify that the selectedNode state holds a Node with TextNodeData
-  const [selectedNode, setSelectedNode] = useState<Node<TextNodeData> | null>(
-    null
-  );
+  // The helper function to render panels
+  const renderSettingsPanel = () => {
+    if (!selectedNode) return null;
 
-  const onConnect = useCallback(
-    (params: Connection | Edge) => setEdges((eds) => addEdge(params, eds)),
-    [setEdges]
-  );
-
-  const onDragOver = useCallback((event: React.DragEvent) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = "move";
-  }, []);
-
-  const onDrop = useCallback(
-    (event: React.DragEvent) => {
-      event.preventDefault();
-      if (!reactFlowWrapper.current || !reactFlowInstance) return;
-      const type = event.dataTransfer.getData(
-        "application/reactflow"
-      ) as NodeType;
-      if (!type) return;
-
-      const position = reactFlowInstance.screenToFlowPosition({
-        x: event.clientX,
-        y: event.clientY,
-      });
-
-      // Be specific that this new node contains TextNodeData
-      const newNode: Node<TextNodeData> = {
-        id: `${type}-${Date.now()}`,
-        type,
-        position,
-        data: NODE_TYPES[type].defaultData,
-      };
-
-      setNodes((nds) => nds.concat(newNode));
-    },
-    [reactFlowInstance, setNodes]
-  );
-
-  const onDragStart = (event: React.DragEvent, nodeType: NodeType) => {
-    event.dataTransfer.setData("application/reactflow", nodeType);
-    event.dataTransfer.effectAllowed = "move";
+    switch (selectedNode.type) {
+      case "textMessage":
+        return (
+          <SettingsPanel
+            selectedNode={selectedNode as Node<TextNodeData>}
+            onNodeUpdate={onNodeUpdate}
+            onClose={onPaneClick}
+          />
+        );
+      // Add cases for other node types as needed
+      // case "imageMessage":
+      default:
+        return null;
+    }
   };
-
-  const onNodeClick = useCallback((_: React.MouseEvent, node: Node) => {
-    setSelectedNode(node as Node<TextNodeData>);
-  }, []);
-
-  const onPaneClick = useCallback(() => {
-    setSelectedNode(null);
-  }, []);
-
-  const onNodeUpdate = useCallback(
-    (nodeId: string, data: Partial<TextNodeData>) => {
-      setNodes((nds) =>
-        nds.map((node) =>
-          node.id === nodeId
-            ? { ...node, data: { ...node.data, ...data } }
-            : node
-        )
-      );
-      // Updating the selected node to reflect changes immediately in the panel
-      setSelectedNode((prevNode) => {
-        if (prevNode && prevNode.id === nodeId) {
-          return { ...prevNode, data: { ...prevNode.data, ...data } };
-        }
-        return prevNode;
-      });
-    },
-    [setNodes]
-  );
 
   return (
     <div className="h-screen w-screen flex font-sans text-gray-800">
@@ -142,11 +84,7 @@ export function FlowBuilder() {
       </div>
 
       {selectedNode ? (
-        <SettingsPanel
-          selectedNode={selectedNode}
-          onNodeUpdate={onNodeUpdate}
-          onClose={onPaneClick}
-        />
+        renderSettingsPanel()
       ) : (
         <NodesPanel onDragStart={onDragStart} />
       )}
