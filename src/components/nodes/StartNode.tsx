@@ -1,9 +1,6 @@
-import { Handle, Position, type NodeProps, useEdges } from "@xyflow/react";
+import { Handle, Position, type NodeProps } from "@xyflow/react";
 
-export function StartNode({ id, selected }: NodeProps) {
-  const edges = useEdges();
-  const isSourceConnected = edges.some((edge) => edge.source === id);
-
+export function StartNode({ selected }: NodeProps) {
   return (
     <div
       className={`
@@ -14,7 +11,7 @@ export function StartNode({ id, selected }: NodeProps) {
     >
       {/* This node has NO target handle, so it cannot be connected to */}
 
-      <div className="flex flex-col items-center gap-1 text-green-600"> 
+      <div className="flex flex-col items-center gap-1 text-green-600">
         <span className="text-lg font-semibold">Start</span>
       </div>
 
@@ -23,8 +20,6 @@ export function StartNode({ id, selected }: NodeProps) {
         type="source"
         position={Position.Right}
         className="!w-4 !h-4 !bg-gray-400"
-        isConnectable={!isSourceConnected}
-        
       />
     </div>
   );
