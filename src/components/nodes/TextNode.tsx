@@ -1,14 +1,18 @@
 // src/components/nodes/TextNode.tsx
-import { Handle, Position } from "@xyflow/react";
+import { Handle, Position, useEdges } from "@xyflow/react";
 import type { NodeProps } from "@xyflow/react";
 import { MessageSquareText } from "lucide-react";
 import type { TextNodeData } from "../../utils/types";
 
 // The component for our custom text node
 export function TextNode({
+  id,
   data,
   selected,
 }: NodeProps & { data: TextNodeData }) {
+  const edges = useEdges();
+  const isSourceConnected = edges.some((edge) => edge.source === id);
+
   return (
     <div
       className={`
@@ -47,6 +51,9 @@ export function TextNode({
         type="source"
         position={Position.Right}
         className="!w-3 !h-3 !bg-gray-400"
+        // This prop tells React Flow to allow only one connection from this handle.
+        // It will be disabled if a connection already exists.
+        isConnectable={!isSourceConnected}
       />
     </div>
   );

@@ -14,7 +14,7 @@ export function NodesPanel({ onDragStart }: NodesPanelProps) {
           const Icon = nodeConfig.icon;
 
           return (
-            <div className="">
+            <div key={nodeConfig.type} className="p-4">
               <div className="flex items-center gap-2 p-4 bg-neutral-100 border-b border-gray-200">
                 <h2 className="text-xl   font-semibold flex-grow">Nodes</h2>
               </div>

@@ -8,6 +8,7 @@ import {
   type Edge,
   type Node,
   type ReactFlowInstance,
+  reconnectEdge,
 } from "@xyflow/react";
 import { NODE_TYPES } from "../utils/constants";
 import type { AppNodeData, NodeType } from "../utils/types";
@@ -19,6 +20,7 @@ export function useFlow() {
   // most logic here I have taken from the official reactflow example
   // and modified it to fit the app need
   // https://reactflow.dev/learn
+  const edgeReconnectSuccessful = useRef(true);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -27,29 +29,32 @@ export function useFlow() {
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
 
   const onConnect = useCallback(
-    (params: Connection) => {
-      setEdges((currentEdges) => {
-        // Check if the source node of the new connection already has an outgoing edge.
-        const sourceHasEdge = currentEdges.some(
-          (edge) => edge.source === params.source
-        );
+    (params: Connection) => setEdges((eds) => addEdge(params, eds)),
+    [setEdges]
+  );
 
-        // If the source node is already connected, do not add the new edge.
-        // Simply return the existing edges array.
-        if (sourceHasEdge) {
-          console.warn(
-            `Node ${params.source} already has an outgoing connection.`
-          );
-          return currentEdges;
-        }
+  // 2. Add the three new handlers for reconnecting/deleting edges
+  const onReconnectStart = useCallback(() => {
+    edgeReconnectSuccessful.current = false;
+  }, []);
 
-        // If the source node is not yet connected, add the new edge.
-        return addEdge(params, currentEdges);
-      });
+  const onReconnect = useCallback(
+    (oldEdge: Edge, newConnection: Connection) => {
+      edgeReconnectSuccessful.current = true;
+      setEdges((els) => reconnectEdge(oldEdge, newConnection, els));
     },
     [setEdges]
   );
 
+  const onReconnectEnd = useCallback(
+    (_: MouseEvent | TouchEvent, edge: Edge) => {
+      if (!edgeReconnectSuccessful.current) {
+        setEdges((eds) => eds.filter((e) => e.id !== edge.id));
+      }
+      edgeReconnectSuccessful.current = true;
+    },
+    [setEdges]
+  );
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
@@ -127,6 +132,18 @@ export function useFlow() {
     [setNodes, setEdges]
   );
 
+  const onEdgeUpdateEnd = useCallback(
+    (_: MouseEvent, edge: Edge, isCancelled: boolean) => {
+      // If the edge drop is cancelled (i.e., dropped onto the pane), delete the edge.
+      if (isCancelled) {
+        setEdges((currentEdges) =>
+          currentEdges.filter((e) => e.id !== edge.id)
+        );
+      }
+    },
+    [setEdges]
+  );
+
   // Return all the state and handlers that the UI component will need
   return {
     reactFlowWrapper,
@@ -144,5 +161,9 @@ export function useFlow() {
     onPaneClick,
     onNodeUpdate,
     onNodeDelete,
+    onEdgeUpdateEnd,
+    onReconnectStart,
+    onReconnect,
+    onReconnectEnd,
   };
 }

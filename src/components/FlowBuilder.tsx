@@ -30,7 +30,10 @@ export function FlowBuilder() {
     onNodeClick,
     onPaneClick,
     onNodeUpdate,
-    onNodeDelete
+    onNodeDelete,
+    onReconnect,
+    onReconnectStart,
+    onReconnectEnd,
   } = useFlow();
 
   // The helper function to render panels
@@ -71,6 +74,9 @@ export function FlowBuilder() {
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
+            onReconnect={onReconnect}
+            onReconnectStart={onReconnectStart}
+            onReconnectEnd={onReconnectEnd}
             onInit={setReactFlowInstance}
             onDrop={onDrop}
             onDragOver={onDragOver}
