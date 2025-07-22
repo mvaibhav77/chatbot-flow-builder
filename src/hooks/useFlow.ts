@@ -13,7 +13,15 @@ import {
 import { NODE_TYPES } from "../utils/constants";
 import type { AppNodeData, NodeType } from "../utils/types";
 
-const initialNodes: Node[] = [];
+const initialNodes: Node[] = [
+  {
+    id: 'start-node', // A fixed ID for our start node
+    type: 'startNode',
+    position: { x: 250, y: 150 }, // A default position on the canvas
+    data: {},
+    deletable: false, // This makes the node non-deletable
+  },
+];
 const initialEdges: Edge[] = [];
 
 export function useFlow() {
@@ -75,11 +83,14 @@ export function useFlow() {
         y: event.clientY,
       });
 
+      const nodeData =
+        type !== "startNode" ? NODE_TYPES[type].defaultData : {};
+
       const newNode: Node = {
         id: `${type}-${Date.now()}`,
         type,
         position,
-        data: NODE_TYPES[type].defaultData,
+        data: nodeData,
       };
 
       setNodes((nds) => nds.concat(newNode));

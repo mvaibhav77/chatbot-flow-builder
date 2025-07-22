@@ -6,10 +6,12 @@ import { NodesPanel } from "./panels/NodesPanel";
 import { SettingsPanel } from "./panels/SettingsPanel";
 import { TextNode } from "./nodes/TextNode";
 import type { TextNodeData } from "../utils/types";
+import { StartNode } from "./nodes/StartNode";
 
 // Define the custom node types. This can stay here as it's UI-related.
 const nodeTypes = {
   textMessage: TextNode,
+  startNode: StartNode,
 };
 
 export function FlowBuilder() {
@@ -91,7 +93,7 @@ export function FlowBuilder() {
         </main>
       </div>
 
-      {selectedNode ? (
+      {selectedNode && selectedNode.type !== "startNode" ? (
         renderSettingsPanel()
       ) : (
         <NodesPanel onDragStart={onDragStart} />
