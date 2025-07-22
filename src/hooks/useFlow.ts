@@ -33,11 +33,14 @@ export function useFlow() {
     loadFlow();
   }, [loadFlow]);
 
-  // Handlers that are still needed for UI interaction
+  // UI interaction handlers
+
+  // This handler is called when the user starts reconnecting an edge.
   const onReconnectStart = useCallback(() => {
     edgeReconnectSuccessful.current = false;
   }, []);
 
+  // This handler is called when the user successfully reconnects an edge.
   const onReconnectEnd = useCallback(
     (_: MouseEvent | TouchEvent, edge: Edge) => {
       if (!edgeReconnectSuccessful.current) {
@@ -48,11 +51,14 @@ export function useFlow() {
     [setEdges, edges]
   );
 
+  // This handler is called when the user drags an item over the flow area.
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
   }, []);
 
+  // This handler is called when the user drops an item onto the flow area.
+  // It creates a new node based on the type of the dragged item.
   const onDrop = useCallback(
     (event: React.DragEvent) => {
       event.preventDefault();
@@ -80,6 +86,8 @@ export function useFlow() {
     [reactFlowInstance, setNodes, nodes]
   );
 
+  // This handler is called when the user starts dragging an item.
+  // It sets the data to be transferred during the drag operation.
   const onDragStart = (event: React.DragEvent, nodeType: NodeType) => {
     event.dataTransfer.setData("application/reactflow", nodeType);
     event.dataTransfer.effectAllowed = "move";
@@ -93,6 +101,8 @@ export function useFlow() {
     setSelectedNode(null);
   }, []);
 
+  // This handler is called when the user updates a node's data.
+  // It updates the node's data in the store.
   const onNodeUpdate = useCallback(
     (nodeId: string, data: Partial<AppNodeData>) => {
       setNodes(
@@ -107,6 +117,8 @@ export function useFlow() {
     [nodes, setNodes]
   );
 
+  // This handler is called when the user deletes a node.
+  // It removes the node and its associated edges from the store.
   const onNodeDelete = useCallback(
     (nodeId: string) => {
       setNodes(nodes.filter((node) => node.id !== nodeId));
@@ -139,6 +151,6 @@ export function useFlow() {
     onReconnectStart,
     onReconnect,
     onReconnectEnd,
-    onSave: saveFlow, // Expose the save function from the store
+    onSave: saveFlow,
   };
 }

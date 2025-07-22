@@ -15,7 +15,7 @@ export function StartNode({ selected }: NodeProps) {
         <span className="text-lg font-semibold">Start</span>
       </div>
 
-      {/* This source handle is limited to one connection */}
+      {/* This source handle is not limited to one connection */}
       <Handle
         type="source"
         position={Position.Right}

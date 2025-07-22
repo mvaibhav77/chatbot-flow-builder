@@ -66,7 +66,7 @@ export function FlowBuilder() {
     <div className="h-screen w-screen flex font-sans text-gray-800">
       <div className="flex-1 flex flex-col" ref={reactFlowWrapper}>
         <header className="bg-gray-100 p-3 border-b border-gray-200 flex justify-between items-center">
-          {/* 1. Add a container for the notification messages */}
+          {/* Container for the notification messages */}
           <div className="flex-grow text-center">
             {saveStatus === "error" && (
               <div className="inline-flex items-center gap-2 text-red-600 bg-red-100 px-4 py-2 rounded-md">
@@ -83,7 +83,7 @@ export function FlowBuilder() {
           </div>
 
           <button
-            onClick={onSave} // <-- 2. Connect the onSave handler
+            onClick={onSave}
             className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 transition-colors flex items-center gap-2"
           >
             <Save size={16} />
@@ -115,6 +115,7 @@ export function FlowBuilder() {
         </main>
       </div>
 
+      {/* Left Panel for Nodes */}
       {selectedNode && selectedNode.type !== "startNode" ? (
         renderSettingsPanel()
       ) : (

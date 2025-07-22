@@ -1,4 +1,3 @@
-// src/components/nodes/TextNode.tsx
 import { Handle, Position, useEdges } from "@xyflow/react";
 import type { NodeProps } from "@xyflow/react";
 import { MessageSquareText } from "lucide-react";
@@ -44,9 +43,7 @@ export function TextNode({
         </p>
       </div>
 
-      {/* Source Handle: This is the connection point for outgoing edges.
-        It will be on the right side.
-      */}
+      {/* Source Handle: This is the connection point for outgoing edges.*/}
       <Handle
         type="source"
         position={Position.Right}

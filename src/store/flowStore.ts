@@ -11,7 +11,7 @@ import {
   reconnectEdge,
 } from "@xyflow/react";
 
-// The initial start node, same as before
+// The initial start node
 const initialNodes: Node[] = [
   {
     id: "start-node",
@@ -22,6 +22,7 @@ const initialNodes: Node[] = [
   },
 ];
 
+// Define the state and actions for the flow store
 type FlowState = {
   nodes: Node[];
   edges: Edge[];
@@ -55,15 +56,8 @@ const useFlowStore = create<FlowState>((set, get) => ({
     });
   },
 
+  // This handler is called when the user connects two nodes.
   onConnect: (connection: Connection) => {
-    const sourceHasEdge = get().edges.some(
-      (edge) => edge.source === connection.source
-    );
-    console.log(connection);
-    if (sourceHasEdge && connection.source !== "start-node") {
-      return;
-    }
-
     set({
       edges: addEdge({ ...connection, animated: true }, get().edges),
     });
