@@ -17,7 +17,7 @@ const initialEdges: Edge[] = [];
 
 export function useFlow() {
   // most logic here I have taken from the official reactflow example
-  // and modified it to fit the app need using GPT as a guide
+  // and modified it to fit the app need
   // https://reactflow.dev/learn
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -27,7 +27,26 @@ export function useFlow() {
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
 
   const onConnect = useCallback(
-    (params: Connection | Edge) => setEdges((eds) => addEdge(params, eds)),
+    (params: Connection) => {
+      setEdges((currentEdges) => {
+        // Check if the source node of the new connection already has an outgoing edge.
+        const sourceHasEdge = currentEdges.some(
+          (edge) => edge.source === params.source
+        );
+
+        // If the source node is already connected, do not add the new edge.
+        // Simply return the existing edges array.
+        if (sourceHasEdge) {
+          console.warn(
+            `Node ${params.source} already has an outgoing connection.`
+          );
+          return currentEdges;
+        }
+
+        // If the source node is not yet connected, add the new edge.
+        return addEdge(params, currentEdges);
+      });
+    },
     [setEdges]
   );
 
@@ -95,7 +114,7 @@ export function useFlow() {
     },
     [setNodes]
   );
-  
+
   const onNodeDelete = useCallback(
     (nodeId: string) => {
       // Manually filter the nodes and edges to remove the deleted one
