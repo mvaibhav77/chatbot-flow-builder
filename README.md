@@ -1,69 +1,84 @@
-# React + TypeScript + Vite
+# Chatbot Flow Builder
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A visual flow builder for creating chatbot conversations using React Flow, built with React, TypeScript, and Tailwind CSS.
 
-Currently, two official plugins are available:
+Hosted on:- https://chatbot-flow-builder-tool.vercel.app/
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## Expanding the ESLint configuration
+- **Visual Flow Editor**: Drag-and-drop interface for building chatbot flows
+- **Node-Based Architecture**: Start nodes and message nodes with connection validation
+- **Real-time Validation**: Prevents saving flows with invalid configurations
+- **Local Storage**: Automatically saves and loads flows
+- **Responsive Design**: Works on desktop and mobile devices
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Tech Stack
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- **React 19** - UI framework
+- **TypeScript** - Type safety
+- **React Flow** - Visual node editor
+- **Tailwind CSS** - Styling
+- **Zustand** - State management
+- **Vite** - Build tool
+- **Lucide React** - Icons
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+## Getting Started
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Prerequisites
+
+- Node.js 18+
+- npm or yarn
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/mvaibhav77/chatbot-flow-builder.git
+
+# Navigate to project directory
+cd chatbot-flow-builder
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Available Scripts
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev      # Start development server
+npm run build    # Build for production
+npm run preview  # Preview production build
+npm run lint     # Run ESLint
 ```
+
+## Usage
+
+1. **Add Nodes**: Drag message nodes from the left panel into the canvas
+2. **Connect Nodes**: Click and drag from source handles (right side) to target handles (left side)
+3. **Edit Messages**: Click on any message node to edit its content in the settings panel
+4. **Save Flow**: Click the "Save Changes" button to persist your flow
+5. **Validation**: The app prevents saving flows with multiple unconnected nodes
+
+## Project Structure
+
+```
+src/
+├── components/
+│   ├── nodes/          # Node components (StartNode, TextNode)
+│   ├── panels/         # UI panels (NodesPanel, SettingsPanel)
+│   └── FlowBuilder.tsx # Main flow editor component
+├── hooks/
+│   └── useFlow.ts      # Flow logic hook
+├── store/
+│   └── flowStore.ts    # Zustand store for state management
+└── utils/
+    ├── constants.ts    # Node type definitions
+    └── types.ts       # TypeScript type definitions
+```
+
+## License
+
+MIT License - see [LICENSE](LICENSE) file for details.
